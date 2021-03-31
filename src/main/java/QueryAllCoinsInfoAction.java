@@ -14,6 +14,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ *  爬取币种信息
+ *  1.api
+ *  非小号:https://dncapi.bqrank.net/api/coin/web-coinrank?page=1&type=-1&pagesize=100&webp=1
+ *  coinmarketcap:https://api.coinmarketcap.com/data-api/v3/map/all?listing_status=active,untracked
+ */
 public class QueryAllCoinsInfoAction {
     //查询结果
     public static List<Map<String,String>> dataList = new ArrayList<>();
@@ -21,7 +27,6 @@ public class QueryAllCoinsInfoAction {
     public static OutputStreamWriter out = null;
     public static void main(String[] args) throws IOException {
         String url = "https://dncapi.bqrank.net/api/coin/web-coinrank?";
-        String paramsString = "page=1&type=-1&pagesize=100&webp=1";
         HashMap send = new HashMap();
         //页面index
         send.put("page",1);
@@ -41,15 +46,24 @@ public class QueryAllCoinsInfoAction {
         while ((line = in.readLine()) != null) {
             //将获取到的每一条数据转换成jsonObject
             JSONObject jo = JSONObject.parseObject(line);
-            Map h = JSONObject.toJavaObject(jo, Map.class);
-            dataList.add(h);
+            //取出币种数据HashMapList
+            Map<String,List> h= JSONObject.toJavaObject(jo, Map.class);
+            dataList.addAll(h.get("data"));
         }
-
+        /**
+         * 常见币种参数
+         * code：币种代号
+         * fullname：中文名称
+         * current_price_usd：当前币种价值 usd可更换为cny等单位
+         * market_value_usd：当前币种市值
+         * high_price：最高价格
+         *
+         */
         for (Map m:
              dataList) {
-            List<Map> mSon = (List<Map>) m.get("data");
-            System.out.println(mSon.get(0));
-            break;
+
+            System.out.println(m.get("fullname")+":"+m.get("code"));
+//            break;
         }
     }
     /**
